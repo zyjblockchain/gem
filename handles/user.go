@@ -99,13 +99,31 @@ func GetMine() gin.HandlerFunc {
 					Error:  "",
 				})
 			}
+		} else {
+			// 等不到
+			c.JSON(200, serializer.Response{
+				Status: 40001,
+				Data:   nil,
+				Msg:    "获取当前用户信息失败，可能没有登录",
+				Error:  "not found",
+			})
 		}
-		// 等不到
+	}
+}
+
+// 登出
+func Logout() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 删除session记录
+		s := sessions.Default(c)
+		s.Clear()
+		_ = s.Save()
+
 		c.JSON(200, serializer.Response{
-			Status: 40001,
+			Status: 200,
 			Data:   nil,
-			Msg:    "获取当前用户信息失败，可能没有登录",
-			Error:  "not found",
+			Msg:    "登出成功",
+			Error:  "",
 		})
 	}
 }

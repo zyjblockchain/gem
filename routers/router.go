@@ -34,7 +34,10 @@ func NewRouter(addr string) {
 		{
 			// 拉取自己的用户信息
 			authed.GET("user/me", handles.GetMine())
+			// 登出
+			authed.DELETE("user/logout", handles.Logout())
 		}
+
 	}
 
 	r.Run(addr)
