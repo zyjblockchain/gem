@@ -38,7 +38,16 @@ func NewRouter(addr string) {
 			authed.DELETE("user/logout", handles.Logout())
 		}
 
+		// 4. 视频相关接口
+		v1.GET("videos", handles.GetOwnerVideos())    // 获取自己上传的videos
+		v1.POST("videos", handles.CreateVideo())      // 视频投K稿
+		v1.GET("video/:id", handles.ShowVideo())      // 点播
+		v1.GET("batchVideos", handles.ListVideo())    // 视频列表
+		v1.PUT("video/:id", handles.UpdateVideo())    // 更新视频内容
+		v1.DELETE("video/:id", handles.DeleteVideo()) // 删除视频
 	}
 
-	r.Run(addr)
+	if err := r.Run(addr); err != nil {
+		panic(err)
+	}
 }
