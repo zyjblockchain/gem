@@ -27,6 +27,8 @@ func NewRouter(addr string) {
 		// 2. 用户登录接口
 		v1.POST("user/login", handles.Login())
 
+		v1.GET("video/:id", handles.ShowVideo()) // 点播
+
 		// 3. 需要登录保护
 		authed := v1.Group("/")
 		// 需要登录授权才能访问的接口
@@ -41,8 +43,7 @@ func NewRouter(addr string) {
 		// 4. 视频相关接口
 		v1.GET("videos", handles.GetOwnerVideos())    // 获取自己上传的videos
 		v1.POST("videos", handles.CreateVideo())      // 视频投K稿
-		v1.GET("video/:id", handles.ShowVideo())      // 点播
-		v1.GET("batchVideos", handles.ListVideo())    // 视频列表
+		v1.POST("batchVideos", handles.ListVideo())   // 视频列表
 		v1.PUT("video/:id", handles.UpdateVideo())    // 更新视频内容
 		v1.DELETE("video/:id", handles.DeleteVideo()) // 删除视频
 	}

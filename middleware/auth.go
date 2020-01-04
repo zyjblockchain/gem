@@ -16,12 +16,7 @@ func AuthRequired() gin.HandlerFunc {
 		}
 
 		// 需要先登录
-		c.JSON(200, serializer.Response{
-			Status: 40001,
-			Data:   nil,
-			Msg:    "需要先登录",
-			Error:  "",
-		})
+		serializer.ErrorResponse(c, 40001, "需要先登录", "")
 		// 终止后面的handle执行
 		c.Abort()
 	}

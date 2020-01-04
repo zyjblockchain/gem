@@ -2,8 +2,10 @@ package handles
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/zyjblockchain/gem/models"
 	"github.com/zyjblockchain/gem/serializer"
 	"github.com/zyjblockchain/gem/services"
+	"strconv"
 )
 
 // 获取自己上传的视频
@@ -11,29 +13,17 @@ func GetOwnerVideos() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var service services.OwnerVideos
 		if err := c.ShouldBind(&service); err == nil {
-			videos, err := service.GetVideos(c.Param("user_id"))
+			u, _ := c.Get("user")
+			videos, err := service.GetVideos(u.(*models.User).ID)
 			if err != nil {
-				c.JSON(200, serializer.Response{
-					Status: 40001,
-					Data:   nil,
-					Msg:    "获取owner videos error",
-					Error:  err.Error(),
-				})
+				serializer.ErrorResponse(c, 40001, "获取自己的视频失败", err.Error())
 			} else {
-				c.JSON(200, serializer.Response{
-					Status: 0,
-					Data:   videos,
-					Msg:    "success",
-					Error:  "",
-				})
+				serializer.SuccessResponse(c, videos, "success")
 			}
 		} else {
-			c.JSON(200, serializer.Response{
-				Status: 40001,
-				Data:   nil,
-				Msg:    "参数错误",
-				Error:  err.Error(),
-			})
+
+			serializer.ErrorResponse(c, 40001, "参数错误", err.Error())
+
 		}
 	}
 }
@@ -44,29 +34,25 @@ func CreateVideo() gin.HandlerFunc {
 		service := services.CreateVideosInfo{}
 		if err := c.ShouldBind(&service); err == nil {
 			// 保存视频
-			video, err := service.CreateVideos(c.Param("user_id"))
+			// 获取当前用户
+			u, exist := c.Get("user")
+			if !exist {
+				serializer.ErrorResponse(c, 40001, "请先登录", "")
+			}
+			user, ok := u.(*models.User)
+			if !ok {
+				panic("user保存的登录态不正确")
+			}
+
+			video, err := service.CreateVideos(strconv.Itoa(int(user.ID)))
 			if err != nil {
-				c.JSON(200, serializer.Response{
-					Status: 40001,
-					Data:   nil,
-					Msg:    "创建视频失败",
-					Error:  err.Error(),
-				})
+				serializer.ErrorResponse(c, 40001, "创建视频失败", err.Error())
 			} else {
-				c.JSON(200, serializer.Response{
-					Status: 200,
-					Data:   *video,
-					Msg:    "视频创建成功",
-					Error:  "",
-				})
+				serializer.SuccessResponse(c, *video, "视频创建成功")
 			}
 		} else {
-			c.JSON(200, serializer.Response{
-				Status: 40001,
-				Data:   nil,
-				Msg:    "参数错误",
-				Error:  err.Error(),
-			})
+			serializer.ErrorResponse(c, 40001, "参数错误", err.Error())
+
 		}
 	}
 }
@@ -78,27 +64,12 @@ func ShowVideo() gin.HandlerFunc {
 		if err := c.ShouldBind(&service); err == nil {
 			video, err := service.ShowVideo(c.Param("id"))
 			if err != nil {
-				c.JSON(200, serializer.Response{
-					Status: 40001,
-					Data:   nil,
-					Msg:    "show视频失败",
-					Error:  err.Error(),
-				})
+				serializer.ErrorResponse(c, 40001, "show视频失败", err.Error())
 			} else {
-				c.JSON(200, serializer.Response{
-					Status: 200,
-					Data:   *video,
-					Msg:    "show视频成功",
-					Error:  "",
-				})
+				serializer.SuccessResponse(c, *video, "show视频成功")
 			}
 		} else {
-			c.JSON(200, serializer.Response{
-				Status: 40001,
-				Data:   nil,
-				Msg:    "参数错误",
-				Error:  err.Error(),
-			})
+			serializer.ErrorResponse(c, 40001, "参数错误", err.Error())
 		}
 	}
 }
@@ -110,27 +81,12 @@ func ListVideo() gin.HandlerFunc {
 		if err := c.ShouldBind(&service); err == nil {
 			videos, err := service.BatchVideos()
 			if err != nil {
-				c.JSON(200, serializer.Response{
-					Status: 40001,
-					Data:   nil,
-					Msg:    "ListVideo 失败",
-					Error:  err.Error(),
-				})
+				serializer.ErrorResponse(c, 40001, "ListVideo 失败", err.Error())
 			} else {
-				c.JSON(200, serializer.Response{
-					Status: 200,
-					Data:   videos,
-					Msg:    "成功",
-					Error:  "",
-				})
+				serializer.SuccessResponse(c, videos, "成功")
 			}
 		} else {
-			c.JSON(200, serializer.Response{
-				Status: 40001,
-				Data:   nil,
-				Msg:    "参数错误",
-				Error:  err.Error(),
-			})
+			serializer.ErrorResponse(c, 40001, "参数错误", err.Error())
 		}
 	}
 }
@@ -141,27 +97,12 @@ func UpdateVideo() gin.HandlerFunc {
 		if err := c.ShouldBind(&service); err == nil {
 			newVideo, err := service.UpdateVideo(c.Param("id"))
 			if err != nil {
-				c.JSON(200, serializer.Response{
-					Status: 40001,
-					Data:   nil,
-					Msg:    "更新视频失败",
-					Error:  err.Error(),
-				})
+				serializer.ErrorResponse(c, 40001, "更新视频失败", err.Error())
 			} else {
-				c.JSON(200, serializer.Response{
-					Status: 200,
-					Data:   *newVideo,
-					Msg:    "成功",
-					Error:  "",
-				})
+				serializer.SuccessResponse(c, *newVideo, "成功")
 			}
 		} else {
-			c.JSON(200, serializer.Response{
-				Status: 40001,
-				Data:   nil,
-				Msg:    "参数错误",
-				Error:  err.Error(),
-			})
+			serializer.ErrorResponse(c, 40001, "参数错误", err.Error())
 		}
 	}
 }
@@ -171,28 +112,13 @@ func DeleteVideo() gin.HandlerFunc {
 		var service services.DeleteVideoInfo
 		if err := c.ShouldBind(&service); err == nil {
 			if err := service.DelVideo(c.Param("id")); err != nil {
-				c.JSON(200, serializer.Response{
-					Status: 40001,
-					Data:   nil,
-					Msg:    "删除视频失败",
-					Error:  err.Error(),
-				})
+				serializer.ErrorResponse(c, 40001, "删除视频失败", err.Error())
+
 			} else {
-				c.JSON(200, serializer.Response{
-					Status: 200,
-					Data:   nil,
-					Msg:    "成功",
-					Error:  "",
-				})
+				serializer.SuccessResponse(c, nil, "成功")
 			}
 		} else {
-			c.JSON(200, serializer.Response{
-				Status: 40001,
-				Data:   nil,
-				Msg:    "参数错误",
-				Error:  err.Error(),
-			})
-
+			serializer.ErrorResponse(c, 40001, "参数错误", err.Error())
 		}
 	}
 }

@@ -16,28 +16,13 @@ func Register() gin.HandlerFunc {
 		if err := c.ShouldBind(&service); err == nil {
 			// 解析成功则进行注册
 			if user, err := service.RegisterUser(); err != nil {
-				c.JSON(200, &serializer.Response{
-					Status: 40001,
-					Data:   nil,
-					Msg:    "注册失败",
-					Error:  err.Error(),
-				})
+				serializer.ErrorResponse(c, 40001, "注册失败", err.Error())
 			} else {
 				// 返回注册的user存储信息
-				c.JSON(200, &serializer.Response{
-					Status: 20000,
-					Data:   user,
-					Msg:    "注册成功",
-					Error:  "",
-				})
+				serializer.SuccessResponse(c, user, "注册成功")
 			}
 		} else {
-			c.JSON(400, &serializer.Response{
-				Status: 400001,
-				Data:   nil,
-				Msg:    "注册参数解析失败",
-				Error:  err.Error(),
-			})
+			serializer.ErrorResponse(c, 40001, "参数解析失败", err.Error())
 		}
 	}
 }
@@ -50,12 +35,7 @@ func Login() gin.HandlerFunc {
 			user, err := loginInfo.UserLogin()
 			if err != nil {
 				// 用户登录失败
-				c.JSON(200, &serializer.Response{
-					Status: 40001,
-					Data:   nil,
-					Msg:    "登录不成功",
-					Error:  err.Error(),
-				})
+				serializer.ErrorResponse(c, 40001, "登录不成功", err.Error())
 			} else {
 				// 登录校验成功
 				// 设置session
@@ -68,21 +48,11 @@ func Login() gin.HandlerFunc {
 				_ = s.Save()
 
 				// 返回登录结果
-				c.JSON(200, serializer.Response{
-					Status: 200,
-					Data:   *user,
-					Msg:    "登录成功",
-					Error:  "",
-				})
+				serializer.SuccessResponse(c, *user, "登录成功")
 			}
 		} else {
 			// 解析请求参数出错
-			c.JSON(200, serializer.Response{
-				Status: 40001,
-				Data:   nil,
-				Msg:    "解析请求参数出错",
-				Error:  err.Error(),
-			})
+			serializer.ErrorResponse(c, 40001, "参数解析失败", err.Error())
 		}
 	}
 }
@@ -92,21 +62,10 @@ func GetMine() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if user, exist := c.Get("user"); exist {
 			if u, ok := user.(*models.User); ok {
-				c.JSON(200, serializer.Response{
-					Status: 200,
-					Data:   *u,
-					Msg:    "得到用户信息",
-					Error:  "",
-				})
+				serializer.SuccessResponse(c, *u, "得到用户信息")
 			}
 		} else {
-			// 等不到
-			c.JSON(200, serializer.Response{
-				Status: 40001,
-				Data:   nil,
-				Msg:    "获取当前用户信息失败，可能没有登录",
-				Error:  "not found",
-			})
+			serializer.ErrorResponse(c, 40001, "获取当前用户信息失败，可能没有登录", "not found")
 		}
 	}
 }
@@ -118,12 +77,6 @@ func Logout() gin.HandlerFunc {
 		s := sessions.Default(c)
 		s.Clear()
 		_ = s.Save()
-
-		c.JSON(200, serializer.Response{
-			Status: 200,
-			Data:   nil,
-			Msg:    "登出成功",
-			Error:  "",
-		})
+		serializer.SuccessResponse(c, nil, "登出成功")
 	}
 }
