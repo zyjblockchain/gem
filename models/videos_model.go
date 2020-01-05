@@ -7,11 +7,11 @@ import (
 
 type Video struct {
 	gorm.Model
-	Title   string // 视频标题
-	Info    string // 视频简介
-	Url     string // 视频源地址
-	Cover   string // 视频封面地址
-	OwnerId string // 视频上传者user id
+	Title      string // 视频标题
+	Info       string // 视频简介
+	VideoPath  string // 视频源oss路径
+	AvatarPath string // 视频封面oss路径
+	OwnerId    string // 视频上传者user id
 }
 
 func AddVideo(v *Video) (error, *Video) {
