@@ -16,19 +16,20 @@ var Pool *BucketPool
 // BucketPool 链接的bucket池
 type BucketPool struct {
 	Buckets []*oss.Bucket
-	sync.Locker
+	sync.RWMutex
 }
 
 func NewBucketPool() *BucketPool {
 	return &BucketPool{
 		Buckets: make([]*oss.Bucket, 0, 100),
+		RWMutex: sync.RWMutex{},
 	}
 }
 
 func (pool *BucketPool) GetBucket() *oss.Bucket {
 	pool.Lock()
 	defer pool.Unlock()
-	if len(pool.Buckets) <= 5 {
+	if len(pool.Buckets) < 5 {
 		// 此时pool中没有可用的bucket
 		newBucket, err := connAliOssBucket(os.Getenv("BUCKET_NAME"))
 		if err != nil {
@@ -40,7 +41,7 @@ func (pool *BucketPool) GetBucket() *oss.Bucket {
 	} else {
 		// 从pool中随机选出一个bucket
 		n, _ := rand.Int(rand.Reader, big.NewInt(1000))
-		index := n.Int64() / 5
+		index := n.Int64() % 5
 		return pool.Buckets[index]
 	}
 }

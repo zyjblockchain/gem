@@ -12,7 +12,7 @@ type VideoPut struct {
 }
 
 func AssembleVideoPut(videos []*models.Video) ([]*VideoPut, error) {
-	var result = make([]*VideoPut, len(videos))
+	var result = make([]*VideoPut, 0, len(videos))
 	for _, video := range videos {
 		// 生成put url
 		videoUrl, err := oss.PutSignedUrl(oss.Pool.GetBucket(), video.VideoPath)
@@ -40,7 +40,7 @@ type VideoGet struct {
 }
 
 func AssembleVideoGet(videos []*models.Video) ([]*VideoGet, error) {
-	var result = make([]*VideoGet, len(videos))
+	var result = make([]*VideoGet, 0, len(videos))
 	for _, video := range videos {
 		// 获取get url
 		videoUrl, err := oss.GetSignedUrl(oss.Pool.GetBucket(), video.VideoPath)
