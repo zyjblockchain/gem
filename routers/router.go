@@ -46,6 +46,9 @@ func NewRouter(addr string) {
 		v1.POST("batchVideos", handles.ListVideo())   // 视频列表
 		v1.PUT("video/:id", handles.UpdateVideo())    // 更新视频内容
 		v1.DELETE("video/:id", handles.DeleteVideo()) // 删除视频
+
+		// 5. 拉取每日视频点击量排行
+		v1.GET("rank/:top", handles.Rank())
 	}
 
 	if err := r.Run(addr); err != nil {

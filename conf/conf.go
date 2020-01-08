@@ -17,4 +17,7 @@ func Init() {
 	oss.Pool = oss.NewBucketPool()
 	// 链接数据库
 	models.InitDB(os.Getenv("MYSQL_DSN"))
+
+	// 连接redis
+	models.InitRedis()
 }

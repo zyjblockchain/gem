@@ -35,6 +35,7 @@ func AssembleVideoPut(videos []*models.Video) ([]*VideoPut, error) {
 
 type VideoGet struct {
 	models.Video
+	VideoHits    int64  `json:"videoHits"` // 视频点击量
 	VideoGetUrl  string `json:"videoGetUrl"`
 	AvatarGetUrl string `json:"avatarGetUrl"`
 }
@@ -54,6 +55,7 @@ func AssembleVideoGet(videos []*models.Video) ([]*VideoGet, error) {
 
 		vg := &VideoGet{
 			Video:        *video,
+			VideoHits:    video.GetPageView(),
 			VideoGetUrl:  videoUrl,
 			AvatarGetUrl: avatarUrl,
 		}

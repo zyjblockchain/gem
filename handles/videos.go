@@ -122,3 +122,22 @@ func DeleteVideo() gin.HandlerFunc {
 		}
 	}
 }
+
+func Rank() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var service services.RankInfo
+		if err := c.ShouldBind(&service); err == nil {
+			top, err := strconv.Atoi(c.Param("top"))
+			if err != nil {
+				serializer.ErrorResponse(c, 40001, "传入参数错误", err.Error())
+			}
+			if videos, err := service.GetRankVideos(int64(top)); err != nil {
+				serializer.ErrorResponse(c, 40001, "拉取排行榜失败", err.Error())
+			} else {
+				serializer.SuccessResponse(c, videos, "成功")
+			}
+		} else {
+			serializer.ErrorResponse(c, 40001, "参数错误", err.Error())
+		}
+	}
+}
