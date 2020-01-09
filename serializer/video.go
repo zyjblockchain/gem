@@ -55,7 +55,7 @@ func AssembleVideoGet(videos []*models.Video) ([]*VideoGet, error) {
 
 		vg := &VideoGet{
 			Video:        *video,
-			VideoHits:    video.GetPageView(),
+			VideoHits:    models.GetPageView(video.ID),
 			VideoGetUrl:  videoUrl,
 			AvatarGetUrl: avatarUrl,
 		}

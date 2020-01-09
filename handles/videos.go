@@ -62,7 +62,17 @@ func ShowVideo() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var service services.ShowVideoInfo
 		if err := c.ShouldBind(&service); err == nil {
-			video, err := service.ShowVideo(c.Param("id"))
+			// 获取user
+			u, ok := c.Get("user")
+			if !ok {
+				panic("用户已经登录了但是获取不到user")
+			}
+			user, ok := u.(*models.User)
+			if !ok {
+				panic("存储到context中的user格式不对")
+			}
+			videoId, _ := strconv.Atoi(c.Param("id"))
+			video, err := service.ShowVideo(uint(videoId), user.ID)
 			if err != nil {
 				serializer.ErrorResponse(c, 40001, "show视频失败", err.Error())
 			} else {

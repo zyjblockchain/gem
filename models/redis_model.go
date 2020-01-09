@@ -10,20 +10,24 @@ import (
 const RankKey = "RankView"
 
 func pageViewKey(videoId uint) string {
-	return fmt.Sprintf("video:%d pageView", videoId)
+	return fmt.Sprintf("videoId:%d", videoId)
+}
+
+func UserKey(userId uint) string {
+	return fmt.Sprintf("userId: %d", userId)
 }
 
 // AddPageView通过redis记录此视频点击量
-func (v *Video) AddPageView(increment int64) {
+func AddPageView(videoId uint, increment int64) {
 	// 增加此视频点击量
-	RedisCache.IncrBy(pageViewKey(v.ID), increment)
+	RedisCache.IncrBy(pageViewKey(videoId), increment)
 	// 根据点击量自动排序,使用有序集合
-	RedisCache.ZIncrBy(RankKey, float64(increment), strconv.Itoa(int(v.ID)))
+	RedisCache.ZIncrBy(RankKey, float64(increment), strconv.Itoa(int(videoId)))
 }
 
 // GetPageView 获取此视频的点击量
-func (v *Video) GetPageView() int64 {
-	num, err := RedisCache.Get(pageViewKey(v.ID)).Int64()
+func GetPageView(videoId uint) int64 {
+	num, err := RedisCache.Get(pageViewKey(videoId)).Int64()
 	if err == redis.Nil || err == nil {
 		return num
 	}
@@ -50,4 +54,21 @@ func GetTopPageView(top int64) ([]*Video, error) {
 		videos = append(videos, video)
 	}
 	return videos, nil
+}
+
+// AddRecord 记录每个用户的观看记录
+func AddRecord(userId, videoId uint) {
+	err := RedisCache.SAdd(UserKey(userId), pageViewKey(videoId)).Err()
+	if err != nil {
+		panic(err)
+	}
+}
+
+// HasView查看此用户是否已经看过此视频
+func HasView(userId, videoId uint) bool {
+	ok, err := RedisCache.SIsMember(UserKey(userId), pageViewKey(videoId)).Result()
+	if err != nil {
+		panic(err)
+	}
+	return ok
 }
